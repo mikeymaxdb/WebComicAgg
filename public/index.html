@@ -72,12 +72,6 @@
 					<div class="row comic whomp">
 						<h3></h3><div class="img"><img /></div>
 					</div>
-					<div class="row comic chainsaw">
-						<h3></h3><div class="img"><img /></div><p></p>
-					</div>
-					<div class="row comic doghouse" style="display:none;">
-						<h3></h3><div class="img"><img /></div><p></p>
-					</div>
 				</div>
 			</div>
 		</div>
@@ -146,14 +140,6 @@
 				$(".row.dino img").attr("src",data.dino.img);
 				$(".row.dino p").html(data.dino.alt);
 
-				// $(".row.doghouse h3").html(data.doghouse.title);
-				// $(".row.doghouse img").attr("src",data.doghouse.img);
-				// $(".row.doghouse p").html(data.doghouse.alt);
-
-				$(".row.chainsaw h3").html(data.chainsaw.title);
-				$(".row.chainsaw img").attr("src",data.chainsaw.img);
-				$(".row.chainsaw p").html(data.chainsaw.alt);
-
 				$(".row.extrafab img").attr("src",data.extrafab.img);
 
 				$(".row.poorly img").attr("src",data.poorly.img);
@@ -171,7 +157,7 @@
 				$(".row.loading").text(getLoadingString());
 				$.ajax({
 					dataType: "json",
-					url: "feed/feed.php",
+					url: "/feed",
 					success: function(data){
 						localStorage.setItem("comics",JSON.stringify(data));
 						localStorage.setItem("lastUpdate",Date.now());

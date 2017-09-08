@@ -85,12 +85,6 @@
 				}
 			});
 
-			function populateXKCD(data){
-				$(".row.xkcd h3").html(data.safe_title);
-				$(".row.xkcd img").attr("src",data.img);
-				$(".row.xkcd p").html(data.alt);
-			}
-
 			function populateComics(data,isXKCD){
 				for(var i=0,max=data.comics.length;i<max;i++){
 					var comic = data[data.comics[i]];

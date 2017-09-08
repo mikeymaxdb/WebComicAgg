@@ -1,3 +1,5 @@
+// TODO: add caching server-side
+
 var express = require('express');
 var App = express();
 var Router = express.Router();
@@ -8,7 +10,9 @@ var request = require('request');
 App.use(express.static('public'));
 
 App.get('/feed', function (req, res){
-	var data = {};
+	var data = {
+		"comics":[]
+	};
 	var comicIndex = 0;
 
     var comics = [
@@ -59,6 +63,7 @@ App.get('/feed', function (req, res){
 	(function nc2(comic){
 		if(comic){
 			data[comic.name] = comic;
+			data.comics.push(comic.name);
 			comicIndex++;
 		}
 

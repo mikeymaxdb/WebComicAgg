@@ -47,31 +47,9 @@
 					<a class="item bookmark verge" href="https://theverge.com"></a>
 					<a class="item bookmark ycomb" href="https://news.ycombinator.com"></a>
 				</div>
-				<div class="row comic xkcd">
-					<h3></h3><div class="img"><img /></div><p></p>
-				</div>
+				<div class="comics"></div>
 				<div class="row loading">
 					Loading...
-				</div>
-				<div class="notXKCD">
-					<div class="row comic smbc">
-						<div class="img"><img /></div><p></p>
-					</div>
-					<div class="row comic dino">
-						<h3></h3><div class="img"><img /></div><p></p>
-					</div>
-					<div class="row comic explosm">
-						<div class="img"><img /></div>
-					</div>
-					<div class="row comic extrafab">
-						<div class="img"><img /></div>
-					</div>
-					<div class="row comic poorly">
-						<div class="img"><img /></div>
-					</div>
-					<div class="row comic whomp">
-						<h3></h3><div class="img"><img /></div>
-					</div>
 				</div>
 			</div>
 		</div>
@@ -113,44 +91,36 @@
 				$(".row.xkcd p").html(data.alt);
 			}
 
-			if(!localStorage.getItem("lastUpdateXKCD")
-				|| Date.now() - localStorage.getItem("lastUpdateXKCD") > 1000*60*60*2){
+			function populateComics(data,isXKCD){
+				for(var i=0,max=data.comics.length;i<max;i++){
+					var comic = data[data.comics[i]];
+					var row = $("<div class='row comic "+comic.name+"'</div>");
 
-				$.ajax({
-					dataType: "jsonp",
-					url: "//dynamic.xkcd.com/api-0/jsonp/comic/ ",
-					success: function(data){
-						localStorage.setItem("comicsXKCD",JSON.stringify(data));
-						localStorage.setItem("lastUpdateXKCD",Date.now());
-
-						populateXKCD(data);
+					if(comic.title){
+						row.append($("<h3>"+comic.title+"</h3>"));
 					}
-				});
-			} else {
-				populateXKCD(JSON.parse(localStorage.getItem("comicsXKCD")));
+
+					row.append($("<div class='img'><img src='"+comic.img+"' /></div>"));
+
+					if(comic.alt){
+						row.append($("<p>"+comic.title+"</p>"));
+					}
+
+					if(isXKCD){
+						$(".comics").prepend(row);
+					} else{
+						$(".comics").append(row);
+					}
+				}
+
+				$(".comics").show();
+
+				if(!isXKCD){
+					$(".loading").hide();
+				}
 			}
 
-			function populateComics(data){
-				$(".row.smbc img").attr("src",data.smbc.img);
-				$(".row.smbc p").html(data.smbc.alt);
-
-				$(".row.explosm img").attr("src",data.explosm.img);
-
-				$(".row.dino h3").html(data.dino.title);
-				$(".row.dino img").attr("src",data.dino.img);
-				$(".row.dino p").html(data.dino.alt);
-
-				$(".row.extrafab img").attr("src",data.extrafab.img);
-
-				$(".row.poorly img").attr("src",data.poorly.img);
-
-				$(".row.whomp h3").html(data.whomp.title);
-				$(".row.whomp img").attr("src",data.whomp.img);
-
-				$(".notXKCD").show();
-				$(".row.loading").hide();
-			}
-
+			// Cache comic data locally for 2 hours
 			if(!localStorage.getItem("lastUpdate")
 				|| Date.now() - localStorage.getItem("lastUpdate") > 1000*60*60*2){
 
@@ -165,7 +135,29 @@
 						populateComics(data);
 					}
 				});
+
+				$.ajax({
+					dataType: "jsonp",
+					url: "//dynamic.xkcd.com/api-0/jsonp/comic/ ",
+					success: function(data){
+						data = {
+							"comics":["xkcd"],
+							"xkcd": {
+								"name": "xkcd",
+								"title": data.safe_title,
+								"img": data.img,
+								"alt": data.alt
+							}
+						}
+
+						localStorage.setItem("comicsXKCD",JSON.stringify(data));
+						localStorage.setItem("lastUpdate",Date.now());
+
+						populateComics(data,true);
+					}
+				});
 			} else {
+				populateComics(JSON.parse(localStorage.getItem("comicsXKCD")),true);
 				populateComics(JSON.parse(localStorage.getItem("comics")));
 			}
 		</script>

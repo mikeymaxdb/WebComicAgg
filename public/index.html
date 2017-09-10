@@ -121,7 +121,7 @@
 				$(".row.loading").text(getLoadingString());
 				$.ajax({
 					dataType: "json",
-					url: "/feed",
+					url: "feed",
 					success: function(data){
 						localStorage.setItem("comics",JSON.stringify(data));
 						localStorage.setItem("lastUpdate",Date.now());

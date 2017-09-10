@@ -100,10 +100,10 @@ function getComicData(comicDB,callback){
 		
 		if(item.description["_cdata"]){
 			src = srcRegex.exec(item.description["_cdata"]);
-			alt = altRegex.exec(item.description["_cdata"])
+			alt = altRegex.exec(item.description["_cdata"]);
 		} else if(item.description["_text"]){
 			src = srcRegex.exec(item.description["_text"]);
-			alt = altRegex.exec(item.description["_text"])
+			alt = altRegex.exec(item.description["_text"]);
 		}
 
 		if(src && src.length >= 2){
@@ -122,24 +122,12 @@ function getComicData(comicDB,callback){
 			}
 		}
 
-		
-		
-
         var data = {
-        	"name": comicDB.name
+        	"name": comicDB.name,
+        	"title": title,
+        	"img": src,
+        	"alt": alt
         };
-
-        if(title){
-        	data.title = title;
-        }
-
-        if(src){
-        	data.img = src;
-        }
-
-        if(alt){
-        	data.alt = alt;
-        }
 
         if(comicDB.process){
         	data = comicDB.process(data);

@@ -85,7 +85,7 @@
 				}
 			});
 
-			function populateComics(data,isXKCD){
+			function populateComics(data){
 				for(var i=0,max=data.comics.length;i<max;i++){
 					var comic = data[data.comics[i]];
 					var row = $("<div class='row comic "+comic.name+"'</div>");
@@ -100,18 +100,12 @@
 						row.append($("<p>"+comic.alt+"</p>"));
 					}
 
-					if(isXKCD){
-						$(".comics").prepend(row);
-					} else{
-						$(".comics").append(row);
-					}
+					$(".comics").append(row);
 				}
 
 				$(".comics").show();
 
-				if(!isXKCD){
-					$(".loading").hide();
-				}
+				$(".loading").hide();
 			}
 
 			// Cache comic data locally for 2 hours
@@ -129,29 +123,7 @@
 						populateComics(data);
 					}
 				});
-
-				$.ajax({
-					dataType: "jsonp",
-					url: "//dynamic.xkcd.com/api-0/jsonp/comic/ ",
-					success: function(data){
-						data = {
-							"comics":["xkcd"],
-							"xkcd": {
-								"name": "xkcd",
-								"title": data.safe_title,
-								"img": data.img,
-								"alt": data.alt
-							}
-						}
-
-						localStorage.setItem("comicsXKCD",JSON.stringify(data));
-						localStorage.setItem("lastUpdate",Date.now());
-
-						populateComics(data,true);
-					}
-				});
 			} else {
-				populateComics(JSON.parse(localStorage.getItem("comicsXKCD")),true);
 				populateComics(JSON.parse(localStorage.getItem("comics")));
 			}
 		</script>

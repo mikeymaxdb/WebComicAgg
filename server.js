@@ -16,6 +16,10 @@ App.get('/feed', function (req, res){
 	var comicIndex = 0;
 
     var comics = [
+        {
+            "name":"xkcd",
+            "url": "http://dynamic.xkcd.com/api-0/jsonp/comic/ "
+        },
     	{ 
     		"name":"smbc",
     		"url":"http://www.smbc-comics.com/rss.php",
@@ -89,38 +93,49 @@ function getComicData(comicDB,callback){
         console.log('error:', error);
         console.log('statusCode:', response && response.statusCode);
 
-        var result = convert.xml2js(body, {compact: true});
-
-        var item = result.rss.channel.item[0];
-
-        var srcRegex = /<img.*?src=['"](.*?)['"]/;
-        var altRegex = /<img.*?title=['"](.*?)['"]/;
-
         var src,title,alt;
-		
-		if(item.description["_cdata"]){
-			src = srcRegex.exec(item.description["_cdata"]);
-			alt = altRegex.exec(item.description["_cdata"]);
-		} else if(item.description["_text"]){
-			src = srcRegex.exec(item.description["_text"]);
-			alt = altRegex.exec(item.description["_text"]);
-		}
 
-		if(src && src.length >= 2){
-			src = src[1];
-		}
+        try{
+            body = JSON.parse(body);
 
-		if(alt && alt.length >= 2){
-			alt = alt[1];
-		}
+            src = body.img;
+            title = body.safe_title;
+            alt = body.alt;
 
-		if(item.title){
-			if(item.title["_cdata"]){
-				title = item.title["_cdata"];
-			} else if(item.title["_text"]){
-				title = item.title["_text"];
-			}
-		}
+        } catch(e){
+
+            var result = convert.xml2js(body, {compact: true});
+
+            var item = result.rss.channel.item[0];
+
+            var srcRegex = /<img.*?src=['"](.*?)['"]/;
+            var altRegex = /<img.*?title=['"](.*?)['"]/;
+
+            
+    		if(item.description["_cdata"]){
+    			src = srcRegex.exec(item.description["_cdata"]);
+    			alt = altRegex.exec(item.description["_cdata"]);
+    		} else if(item.description["_text"]){
+    			src = srcRegex.exec(item.description["_text"]);
+    			alt = altRegex.exec(item.description["_text"]);
+    		}
+
+    		if(src && src.length >= 2){
+    			src = src[1];
+    		}
+
+    		if(alt && alt.length >= 2){
+    			alt = alt[1];
+    		}
+
+    		if(item.title){
+    			if(item.title["_cdata"]){
+    				title = item.title["_cdata"];
+    			} else if(item.title["_text"]){
+    				title = item.title["_text"];
+    			}
+    		}
+        }
 
         var data = {
         	"name": comicDB.name,

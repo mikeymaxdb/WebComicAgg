@@ -18,7 +18,7 @@ App.get('/feed', function (req, res){
     var comics = [
         {
             "name":"xkcd",
-            "url": "http://dynamic.xkcd.com/api-0/jsonp/comic/ "
+            "url": "https://xkcd.com/info.0.json"
         },
     	{ 
     		"name":"smbc",

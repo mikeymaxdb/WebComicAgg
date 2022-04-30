@@ -117,7 +117,6 @@ const cache = { data: null, timestamp: 0 }
 App.use(express.static('public'))
 
 App.get('/feed', function (req, res){
-
     const loadPromises = []
 
     console.log()

@@ -1,131 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>Homepage</title>
-		<link href='css/style.css' rel='stylesheet' type='text/css'>
-		<link href='css/weather-icons.min.css' rel='stylesheet' type='text/css'>
-
-		<script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
-		<script type="text/javascript" src="js/jquery.simpleWeather.min.js"></script>
-		<script type="text/javascript" src="js/getLoadingString.js"></script>
-		<script type="text/javascript">
-			var weatherClasses = {
-				"Showers": "wi-rain-mix",
-				"Scattered Showers": "wi-showers",
-				"Partly Cloudy": "wi-day-cloudy",
-				"Cloudy": "wi-cloudy",
-				"Rain": "wi-rain",
-				"Mostly Cloudy": "wi-cloudy",
-				"Scattered Thunderstorms": "wi-storm-showers",
-				"Mostly Sunny": "wi-day-cloudy-high",
-				"Sunny": "wi-day-sunny",
-				"Clear": "wi-night-clear"
-			}
-		</script>
-	</head>
-	<body>
-		<div id="MainContainer">
-			<div id="MainContent">
-				<div class="row weather">
-					<div class="current flex">
-						<div class="now">
-							<div class="temp icon"></div>
-							<div class="currentConditions"></div>
-						</div>
-						<div class="today">
-							<div class="location">Palo Alto, CA</div>
-							<div class="forecast"></div>
-							<div class="forecastTemps"></div>
-							<div class="sunset"></div>
-						</div>
-					</div>
-					<div class="forecast"></div>
-				</div>
-				<div class="row bookmarks">
-					<a class="item bookmark verge" href="https://theverge.com"></a>
-					<a class="item bookmark ycomb" href="https://news.ycombinator.com"></a>
-				</div>
-				<div class="comics"></div>
-				<div class="row loading">
-					Loading...
-				</div>
-			</div>
-		</div>
-
-		<script type="text/javascript">
-			$.simpleWeather({
-				location: 'Palo Alto, CA',
-				woeid: '',
-				unit: 'f',
-				success: function(weather){
-					$(".weather .current .forecast").html(weather.text);
-					$(".weather .current .temp").html(weather.temp+"&deg;F").addClass(weatherClasses[weather.currently]);
-					$(".weather .current .currentConditions").html(weather.currently);
-					$(".weather .current .forecastTemps").html(weather.high+"&deg;F / "+weather.low+"&deg;F");
-					$(".weather .current .sunset").html("Sunset at "+weather.sunset);
-
-					var forecast,day,temps;
-					for(var i=1;i<6;i++){
-						forecast = weather.forecast[i];
-						day = $("<div class='day'></div>");
-						icon = $("<div class='icon "+weatherClasses[forecast.text]+"'></div>");
-						weekday = $("<div class='weekDay'>"+forecast.day+"</div>");
-						condition = $("<div class='condition'>"+forecast.text+"</div>");
-						temps = $("<div class='temps'>"+forecast.high+"&deg;F / "+forecast.low+"&deg;F</div>");
-
-						day.append([weekday,icon,temps,condition]);
-
-						$(".weather>.forecast").append(day);
-					}
-				},
-				error: function(error){
-					$(".weather").html('<p>'+error+'</p>');
-				}
-			});
-
-			function populateComics(data){
-				for(var i=0,max=data.comics.length;i<max;i++){
-					var comic = data[data.comics[i]];
-					var row = $("<div class='row comic "+comic.name+"'</div>");
-
-					if(comic.title){
-						row.append($("<h3>"+comic.title+"</h3>"));
-					}
-
-					row.append($("<div class='img'><img src='"+comic.img+"' /></div>"));
-
-					if(comic.alt){
-						row.append($("<p>"+comic.alt+"</p>"));
-					}
-
-					$(".comics").append(row);
-				}
-
-				$(".comics").show();
-
-				$(".loading").hide();
-			}
-
-			// Cache comic data locally for 2 hours
-			if(!localStorage.getItem("lastUpdate")
-				|| Date.now() - localStorage.getItem("lastUpdate") > 1000*60*60*2){
-
-				$(".row.loading").text(getLoadingString());
-				$.ajax({
-					dataType: "json",
-					url: "feed",
-					success: function(data){
-						localStorage.setItem("comics",JSON.stringify(data));
-						localStorage.setItem("lastUpdate",Date.now());
-
-						populateComics(data);
-					}
-				});
-			} else {
-				populateComics(JSON.parse(localStorage.getItem("comics")));
-			}
-		</script>
-	</body>
+    <head>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Web Comics</title>
+        <link href='style.css' rel='stylesheet' type='text/css'>
+    </head>
+    <body>
+        <div id="Content">
+            <div id='Loader'></div>
+            <section id="Comics"></section>
+        </div>
+        <script src="loader.js"></script>
+    </body>
 </html>

@@ -62,67 +62,6 @@ html{
 	clear: both;
 }
 
-.bookmarks{
-	display: flex;
-}
-
-.weather{
-	flex: 1;
-	color: white;
-	font-size: .8em;
-}
-.weather>.current{
-	padding-bottom: 1rem;
-	justify-content: center;
-}
-.weather .now, .weather .today{
-	padding: 0 .5rem;
-}
-.weather .now{
-	text-align: center;
-}
-.weather .now .temp{
-	font-size: 3em;
-	padding-bottom: .5rem;
-}
-.weather .now .temp:before{
-	margin-right: .5rem;
-}
-.weather .today{
-	padding-top: .55rem;
-}
-.weather>.forecast{
-	display: flex;
-}
-.weather>.forecast .day{
-	flex: 1;
-	text-align: center;
-}
-.weather>.forecast .day .icon{
-	font-size: 2em;
-	padding: .2rem 0;
-}
-
-.item{
-	border-radius: 5px;
-	margin: .5rem;
-}
-.item.bookmark{
-	width: 3rem;
-	padding-top: 3rem;
-	display: block;
-	background-position: center;
-	background-size: contain;
-	background-repeat: no-repeat;
-}
-.item.bookmark.verge{
-	background-image: url(//cdn0.vox-cdn.com/images/verge/2.0/verge-icon-196x196.v503bbf1.png);
-}
-.item.bookmark.ycomb{
-	background-image: url(../img/ycomb.png);
-	background-color: #ff6600;
-}
-
 .notXKCD{
 	display: none;
 }
@@ -158,41 +97,4 @@ html{
 
 @media (min-width: 64rem) {
   html { font-size: 100%; }
-}
-
-
-
-.icon:before{
-	display: inline-block;
-	font-family: weathericons;
-	font-style: normal;
-	font-weight: 400;
-	line-height: 1;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-}
-
-.materialIcon {
-  font-family: 'Material Icons';
-  font-weight: normal;
-  font-style: normal;
-  font-size: 24px;  /* Preferred icon size */
-  display: inline-block;
-  line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  white-space: nowrap;
-  direction: ltr;
-
-  /* Support for all WebKit browsers. */
-  -webkit-font-smoothing: antialiased;
-  /* Support for Safari and Chrome. */
-  text-rendering: optimizeLegibility;
-
-  /* Support for Firefox. */
-  -moz-osx-font-smoothing: grayscale;
-
-  /* Support for IE. */
-  font-feature-settings: 'liga';
 }

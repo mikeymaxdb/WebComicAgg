@@ -1,0 +1,47 @@
+*{
+    font-family: sans-serif;
+    box-sizing: border-box;
+    color: #eceff4;
+}
+
+body {
+    margin: 0;
+    padding-top: 4rem;
+    background-color: #2e3440;
+}
+
+#Content {
+    width: 85%;
+    max-width: 40rem;
+    margin: auto;
+}
+
+#Loader {
+    text-align: center;
+}
+
+article {
+    padding-bottom: 1rem;
+}
+
+h4 {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #88c0d0;
+}
+
+h3 {
+    text-transform: capitalize;
+    margin: 0.5rem 0;
+}
+
+img{
+    background-color: #eceff4;
+    max-width: 100%;
+    display: block;
+}
+
+p {
+    font-size: 0.8em;
+    color: #d8dee9;
+}

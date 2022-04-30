@@ -16,8 +16,8 @@
   },
   "homepage": "https://github.com/mikeymaxdb/Homepage#readme",
   "dependencies": {
+    "axios": "^0.27.2",
     "express": "^4.18.1",
-    "request": "^2.88.2",
     "xml-js": "^1.6.11"
   },
   "devDependencies": {

@@ -10,35 +10,24 @@ function getLoadingString(){
     return capitalizeFirstLetter(verbs[randomVerbIndex])+" "+nouns[randomNounIndex]+"s...";
 }
 
-function populateComics(data){
+function populateComics(comics){
+    // console.debug(comics)
+
     document.getElementById('Loader').style.display = 'none'
-
-    for(var i=0,max=data.comics.length;i<max;i++){
-        const comic = data[data.comics[i]];
-
+    comics.forEach((comic) => {
+        const { name, title, img, alt } = comic
         const row = document.createElement('article')
         row.innerHTML = `
-                        <h4>${comic.name}</h4>
-                        <h3>${comic.title}</h3>
-                        <img src="${comic.img}" />
-                        <p>${comic.alt}</p>
+                        <h4>${name}</h4>
+                        <h3>${title || ''}</h3>
+                        <img src="${img || ''}" />
+                        <p>${alt || ''}</p>
                     `
 
         document.getElementById('Comics').appendChild(row)
-    }
-}
-
-// Cache comic data locally for 2 hours
-if(!localStorage.getItem("lastUpdate")
-    || Date.now() - localStorage.getItem("lastUpdate") > 1000*60*60*2){
-
-    document.getElementById('Loader').innerText = getLoadingString()
-    fetch('feed').then((res) => res.json()).then((data) => {
-        // localStorage.setItem("comics",JSON.stringify(data));
-        // localStorage.setItem("lastUpdate",Date.now());
-        // console.debug(data)
-        populateComics(data)
     })
-} else {
-    populateComics(JSON.parse(localStorage.getItem("comics")));
 }
+
+document.getElementById('Loader').innerText = getLoadingString()
+
+fetch('feed').then((res) => res.json()).then(populateComics)

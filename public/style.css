@@ -39,6 +39,7 @@ img{
     background-color: #eceff4;
     max-width: 100%;
     display: block;
+    margin: auto;
 }
 
 p {

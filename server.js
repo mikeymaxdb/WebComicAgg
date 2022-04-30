@@ -1,153 +1,140 @@
-// TODO: add caching server-side
+const express = require('express')
+const App = express()
+const Router = express.Router()
 
-var express = require('express');
-var App = express();
-var Router = express.Router();
+const convert = require('xml-js')
+const axios = require('axios')
 
-var convert = require('xml-js');
-var request = require('request');
+const comics = [
+    {
+        "name":"xkcd",
+        "url": "https://xkcd.com/info.0.json"
+    },
+    { 
+        "name":"smbc",
+        "url":"http://www.smbc-comics.com/rss.php",
+        "process":function(data) {
+            data.title = data.title.replace("Saturday Morning Breakfast Cereal - ","");
+        }
+    },
+    {
+        "name":"explosm",
+        "url":"https://explosm-1311.appspot.com/",
+        "process":function(data){
+            data.title = undefined;
+            return data;
+        }
+    },
+    {
+        "name":"dino",
+        "url":"http://www.qwantz.com/rssfeed.php",
+    },
+    // {
+    //     "name":"extrafab",
+    //     "url":"https://www.reddit.com/r/ExtraFabulousComics/new/.rss",
+    //     "process":function(data){
+    //         data.img = data.img.replace("-150x150","");
+    //         data.title = undefined;
+    //         return data;
+    //     }
+    // },
+    {
+        "name":"poorly",
+        "url":"https://poorlydrawnlines.com/rss",
+    },
+]
 
-App.use(express.static('public'));
+App.use(express.static('public'))
 
 App.get('/feed', function (req, res){
-    var data = {
-        "comics":[]
-    };
-    var comicIndex = 0;
 
-    var comics = [
-        {
-            "name":"xkcd",
-            "url": "https://xkcd.com/info.0.json"
-        },
-        // { 
-        //     "name":"smbc",
-        //     "url":"http://www.smbc-comics.com/rss.php",
-        //     "process":function(data){
-        //         data.title = data.title.replace("Saturday Morning Breakfast Cereal - ","");
-        //         return data;
-        //     }
-        // },
-        // {
-        //     "name":"explosm",
-        //     "url":"https://explosm-1311.appspot.com/",
-        //     "process":function(data){
-        //         data.title = undefined;
-        //         return data;
-        //     }
-        // },
-        // {
-        //     "name":"dino",
-        //     "url":"http://www.qwantz.com/rssfeed.php",
-        // },
-        // {
-        //     "name":"extrafab",
-        //     "url":"http://extrafabulouscomics.com/feed/",
-        //     "process":function(data){
-        //         data.img = data.img.replace("-150x150","");
-        //         data.title = undefined;
-        //         return data;
-        //     }
-        // },
-        // {
-        //     "name":"poorly",
-        //     "url":"http://pdlcomics.tumblr.com/rss",
-        // },
-        // {
-        //     "name":"whomp",
-        //     "url":"http://www.whompcomic.com/rss.php",
-        //     "process":function(data){
-        //         data.img = data.img.replace("comicsthumbs","comics");
-        //         data.title = data.title.replace("Whomp! - ","");
-        //         return data;
-        //     }
-        // }
-    ];
+    const loadPromises = []
 
-    (function nc2(comic){
-        if(comic){
-            data[comic.name] = comic;
-            data.comics.push(comic.name);
-            comicIndex++;
-        }
+    console.log(new Date().toLocaleString())
 
-        if(comicIndex == comics.length){
-            // We're done, send the data
-            res.send(data);
-        } else{
-            // Get the next comic
-            const comicDB = comics[comicIndex];
-            getComicData(comicDB,nc2);
-        }
-    })();
-    // ^ We start here
-});
+    comics.forEach((comic) => {
+        loadPromises.push(getComicData(comic))
+    })
 
-var Server = App.listen(3100, function () {
-    console.log('[i] Listening on port 3100');
-});
+    Promise.allSettled(loadPromises).then((results) => {
+        const data = []
 
-function getComicData(comicDB,callback){
-    console.log('url:',comicDB.url);
-    request(comicDB.url, function (error, response, body) {
-        console.log('error:', error);
-        console.log('statusCode:', response && response.statusCode);
-
-        var src,title,alt;
-
-        try{
-            body = JSON.parse(body);
-
-            src = body.img;
-            title = body.safe_title;
-            alt = body.alt;
-
-        } catch(e){
-
-            var result = convert.xml2js(body, {compact: true});
-
-            var item = result.rss.channel.item[0];
-
-            var srcRegex = /<img.*?src=['"](.*?)['"]/;
-            var altRegex = /<img.*?title=['"](.*?)['"]/;
-
-
-            if(item.description["_cdata"]){
-                src = srcRegex.exec(item.description["_cdata"]);
-                alt = altRegex.exec(item.description["_cdata"]);
-            } else if(item.description["_text"]){
-                src = srcRegex.exec(item.description["_text"]);
-                alt = altRegex.exec(item.description["_text"]);
+        results.forEach((result) => {
+            if (result.status === 'fulfilled') {
+                data.push(result.value)
             }
+        })
 
-            if(src && src.length >= 2){
-                src = src[1];
+        res.send(data)
+    })
+})
+
+App.listen(3100, () => {
+    console.log('[i] Listening on port 3100');
+})
+
+async function getComicData(config) {
+    const { url, name } = config
+
+    const res = await axios.get(url)
+    const { data, status } = res
+
+    console.log(name, status, url)
+
+    const result = {
+        name,
+    }
+
+    try {
+        if (typeof data === 'object') {
+            const { img, alt, safe_title } = data
+            result.img = img
+            result.alt = alt
+            result.title = safe_title
+        } else {
+            const xml = convert.xml2js(data, { compact: true })
+            const latestItem = xml.rss ? xml.rss.channel.item[0] : xml.feed.entry[0]
+            console.log(latestItem)
+
+            const srcRegex = /<img.*?src=['"](.*?)['"]/;
+            const altRegex = /<img.*?title=['"](.*?)['"]/;
+
+            let imgString
+            let imgSrc
+
+            imgString = 
+                (latestItem.description && latestItem.description["_cdata"])
+                || (latestItem.description && latestItem.description["_text"])
+                || (latestItem['content:encoded'] && latestItem['content:encoded']['_cdata'])
+                || (latestItem.content && latestItem.content['_text'])
+
+            imgSrc = srcRegex.exec(imgString)
+            alt = altRegex.exec(imgString)
+
+            console.log(imgSrc)
+
+            if(imgSrc && imgSrc.length >= 2){
+                result.img = imgSrc[1];
             }
 
             if(alt && alt.length >= 2){
-                alt = alt[1];
+                result.alt = alt[1];
             }
 
-            if(item.title){
-                if(item.title["_cdata"]){
-                    title = item.title["_cdata"];
-                } else if(item.title["_text"]){
-                    title = item.title["_text"];
+            if(latestItem.title){
+                if(latestItem.title["_cdata"]){
+                    result.title = latestItem.title["_cdata"];
+                } else if(latestItem.title["_text"]){
+                    result.title = latestItem.title["_text"];
                 }
             }
+            if (config.process) {
+                config.process(result)
+            }
         }
+    } catch (error) {
+        console.log(error)
+    }
 
-        var data = {
-            "name": comicDB.name,
-            "title": title,
-            "img": src,
-            "alt": alt
-        };
-
-        if(comicDB.process){
-            data = comicDB.process(data);
-        }
-
-        callback(data);	
-    });
+    return result
 }

@@ -41,8 +41,9 @@ const comics = [
         process: (dom) => {
             const element = select.selectOne('#comic-short img', dom)
             const { src } = element.attribs
+            const title = filenameFromPath(src)
 
-            return { src }
+            return { src, title }
         },
     },
     {

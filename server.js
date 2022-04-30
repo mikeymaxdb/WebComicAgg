@@ -100,7 +100,7 @@ async function getComicData(config) {
     const res = await axios.get(url)
     const { data, status } = res
 
-    console.log(name, status, url)
+    console.log('[c]     ', name, status, url)
 
     const dom = htmlParser.parseDocument(data)
 
@@ -112,31 +112,47 @@ async function getComicData(config) {
     return comic
 }
 
+const cache = { data: null, timestamp: 0 }
+
 App.use(express.static('public'))
 
 App.get('/feed', function (req, res){
 
     const loadPromises = []
 
-    console.log(new Date().toLocaleString())
+    console.log()
+    console.log('[i] ', new Date().toLocaleString())
 
-    comics.forEach((comic) => {
-        loadPromises.push(getComicData(comic))
-    })
-
-    Promise.allSettled(loadPromises).then((results) => {
-        const data = []
-
-        results.forEach((result) => {
-            if (result.status === 'fulfilled') {
-                data.push(result.value)
-            }
+    const cacheExpiry = 1000 * 60 * 60 * 2 // 2 hours
+    if (!cache.data || Date.now() - cache.timestamp > cacheExpiry) {
+        console.log('[+]  Scraping data')
+        comics.forEach((comic) => {
+            loadPromises.push(getComicData(comic))
         })
 
-        res.send(data)
-    })
+        Promise.allSettled(loadPromises).then((results) => {
+            const data = []
+
+            results.forEach((result) => {
+                if (result.status === 'fulfilled') {
+                    data.push(result.value)
+                }
+            })
+
+            cache.data = data
+            cache.timestamp = Date.now()
+            console.log('[^]  Data cached')
+
+            res.send(data)
+        })
+    } else {
+        const cacheAge = Date.now() - cache.timestamp
+        const cacheTimer = (cacheExpiry - cacheAge) / (1000 * 60)
+        console.log(`[>]  Cache hit. Expires in ${Math.floor(cacheTimer)} minutes`)
+        res.send(cache.data)
+    }
 })
 
 App.listen(3100, () => {
-    console.log('[i] Listening on port 3100');
+    console.log('[i]  Listening on port 3100');
 })

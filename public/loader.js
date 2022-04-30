@@ -15,10 +15,10 @@ function populateComics(comics){
 
     document.getElementById('Loader').style.display = 'none'
     comics.forEach((comic) => {
-        const { name, title, img, alt } = comic
+        const { name, title, img, alt, link } = comic
         const row = document.createElement('article')
         row.innerHTML = `
-                        <h4>${name}</h4>
+                        <h4><a ${link ? 'href="' + link + '"' : ''}">${name}</a></h4>
                         <h3>${title || ''}</h3>
                         <img src="${img || ''}" />
                         <p>${alt || ''}</p>

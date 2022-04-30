@@ -87,14 +87,15 @@ async function getComicData(config) {
 
     try {
         if (typeof data === 'object') {
-            const { img, alt, safe_title } = data
+            console.log(data)
+            const { img, alt, safe_title, link } = data
             result.img = img
             result.alt = alt
             result.title = safe_title
+            result.link = link
         } else {
             const xml = convert.xml2js(data, { compact: true })
             const latestItem = xml.rss ? xml.rss.channel.item[0] : xml.feed.entry[0]
-            console.log(latestItem)
 
             const srcRegex = /<img.*?src=['"](.*?)['"]/;
             const altRegex = /<img.*?title=['"](.*?)['"]/;
@@ -103,15 +104,15 @@ async function getComicData(config) {
             let imgSrc
 
             imgString = 
-                (latestItem.description && latestItem.description["_cdata"])
-                || (latestItem.description && latestItem.description["_text"])
+                (latestItem.description && latestItem.description['_cdata'])
+                || (latestItem.description && latestItem.description['_text'])
                 || (latestItem['content:encoded'] && latestItem['content:encoded']['_cdata'])
                 || (latestItem.content && latestItem.content['_text'])
 
             imgSrc = srcRegex.exec(imgString)
             alt = altRegex.exec(imgString)
 
-            console.log(imgSrc)
+            // console.log(latestItem)
 
             if(imgSrc && imgSrc.length >= 2){
                 result.img = imgSrc[1];
@@ -122,12 +123,15 @@ async function getComicData(config) {
             }
 
             if(latestItem.title){
-                if(latestItem.title["_cdata"]){
-                    result.title = latestItem.title["_cdata"];
-                } else if(latestItem.title["_text"]){
-                    result.title = latestItem.title["_text"];
+                if(latestItem.title['_cdata']){
+                    result.title = latestItem.title['_cdata'];
+                } else if(latestItem.title['_text']){
+                    result.title = latestItem.title['_text'];
                 }
             }
+
+            result.link = latestItem.link['_text']
+
             if (config.process) {
                 config.process(result)
             }
